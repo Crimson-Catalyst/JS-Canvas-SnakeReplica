@@ -1,23 +1,26 @@
 <HTML>
 <HEAD>
 
-<title>wow</title>
-
+<title>Snake Replica</title>
 
 <script>
-    'use strict;'
+
     window.onload = init;
     
-    //VARIABLES 
+    //VARIABLES
     var canvas, ctx;
-    var playerX, playerY, playerSize;
     var key;
+    var timer, tickTimer;
     var direction, speed;
+    var gameOver;
+    
+    var playerX, playerY, playerSize;
+    var collectX, collectY, collectSize;
+    
     var dotsX = [];
     var dotsY = [];
     var totalDots;
-    var timer;
-    
+        
     //FUNCTIONS
     function init(){
         canvas = document.querySelector('canvas');
@@ -28,148 +31,208 @@
         update();
     }
 
-
     function setup(){
-        playerX =300;   
-        playerY =200;
-        playerSize = 21;
+        playerSize = 25; 
+        
+        playerX = 300;
+        playerY = 300;
+        
+        collectSize = 15;
+        
+        collectX = 100;
+        collectY = 100;
+        
+        timer = 0;
+        tickTimer = 0;
+        direction = 'up';
         speed = playerSize;
-        direction ='right';
         
-        timer=0;
-        
+        gameOver = false;
+            
         totalDots = 3;
         dotsX[0] = playerX;
         dotsY[0] = playerY;
         
         for(var i=1; i<totalDots; i++){
-            dotsX[i] = playerX - (playerSize/2 - speed)*i;
+            dotsX[i] = (playerX - (playerSize/2 - speed)*i);
             dotsY[i] = playerY;
         }
     }
     
+    
     function draw(){
-        //refresh
-        ctx.fillStyle = '#ffffff'; 
-        ctx.fillRect(0, 0, 600, 400);
-
-        //draw player
-        ctx.fillStyle ='#336699';
-        ctx.fillRect(playerX-playerSize/2,playerY-playerSize/2, playerSize, playerSize);
         
-        //draw dots
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0,0, 600,600);
+        
+        ctx.fillStyle = '#336699';
+        ctx.fillRect(playerX-playerSize/2, playerY-playerSize/2, playerSize,playerSize);
+            
+        ctx.fillStyle = '#01abcd';
+        ctx.fillRect(collectX-collectSize/2,collectY-collectSize/2, collectSize,collectSize);
+          
+        
+        //draw tail dots
         ctx.fillStyle = '#bada55';
-        for(var i = 1; i < totalDots; i++){
-            ctx.fillRect(dotsX[i]-playerSize/2, dotsY[i]-playerSize/2, playerSize-1, playerSize-1);
-            //console.log("drew dot at: " + dotsX[i] + " " + dotsY[i]);
+        for(var i=1; i < totalDots; i++){
+            ctx.fillRect(dotsX[i]-playerSize/2, dotsY[i]-playerSize/2, playerSize,playerSize);
+            
         }
         
         
-    
+        if(gameOver == true){
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0,0, 600,600);
+            
+            ctx.fillStyle = '#01abcd';
+            ctx.font = '40px Courier New';
+            ctx.fillText('GAME OVER', 200,300);
+        }
+        
     }
-        
+    
+    
     function update(){
-        
         draw();
         
         if(timer == 7){
+            
+            //KEY CODES HERE
             if(direction == 'up'){
-             playerY =playerY - speed;    
+                playerY = playerY - speed;
             }
-            if(direction == 'down'){
-             playerY =playerY + speed;    
-            }
-            if(direction == 'right'){
-             playerX =playerX + speed;    
-            }
+            
             if(direction == 'left'){
-             playerX =playerX - speed;    
+                playerX = playerX - speed;           
             }
-
+            
+            if(direction == 'down'){
+               playerY = playerY + speed;
+            }
+            
+            if(direction == 'right'){
+               playerX = playerX + speed;
+            }
+               
+            
+            timer = 0;
+            tickTimer++;
+            
+            //MOVE TAIL HERE
             for(var i=totalDots; i>=0; i--){
-                if(i == 0){
-                    dotsX[i] = playerX;
-                    dotsY[i] = playerY;
-                }else{
+                if(i==0){
+                   dotsX[i] = playerX;
+                   dotsY[i] = playerY; 
+                }
+                else{
                     dotsX[i] = dotsX[i-1];
                     dotsY[i] = dotsY[i-1];
-                }
+                    
+                }   
             }
-            timer = 0;
+            
+            
+            
         }
         else{
             timer++;
         }
         
+        //check for collection
+        if(collectX+collectSize/2 > playerX-playerSize/2){
+           if(collectX-collectSize/2 < playerX+playerSize/2){
+               
+               if(collectY+collectSize/2 > playerY-playerSize/2){
+                   if(collectY-collectSize/2 < playerY+playerSize/2){
+                   
+                       collectX = getRandom(0,600-collectSize);
+                       collectY = getRandom(0,600-collectSize);
+                       
+                       totalDots++;
+                       
+                   }
+               }    
+               
+           }            
+        }
+        
+        
+        if(playerY < 0){
+            playerY = 600;
+        }
+        if(playerX > 600){
+            playerX = 0;
+        }
+        if(playerY > 600){
+            playerY = 0;
+        }
+        if(playerX < 0){
+           playerX = 600;
+        }
+        
+        
+        if(tickTimer > 5){
+            for(var i=1; i < totalDots; i++){
+                if(dotsX[i]+playerSize/2 > playerX-playerSize/2){
+                if(dotsX[i]-playerSize/2 < playerX+playerSize/2){
+                    
+                    if(dotsY[i]+playerSize/2 > playerY-playerSize/2){
+                    if(dotsY[i]-playerSize/2 < playerY+playerSize/2){
+                        
+                        gameOver = true;
+                       
+                    }
+                    }
+                }
+                }
+            }
+        }
+        
+         
         window.requestAnimationFrame(update);
-    }    
+    }
+    
+     function getRandom(base, cap){
+        return (Math.floor(Math.random()*(cap-base+1)+base));
+    }
     
     
-    /*function addDot(){
-        totalDots ++;
-        console.log("adding dot: " + totalDots);
-        
-        
-        if(direction == 'right'){
-            dotsX.push(playerX - playerSize*totalDots);
-            dotsY.push(playerY);
-            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
-        }
-        if(direction == 'left'){
-            dotsX.push(playerX + playerSize*2 + speed);
-            dotsY.push(playerY);
-            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
-        }
-        if(direction == 'up'){
-            dotsY.push(playerY - playerSize - speed);
-            dotsX.push(playerX);
-            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
-        }
-        if(direction == 'down'){
-            dotsY[dotsY.length] = playerY + playerSize*2 + speed;
-            dotsX[dotsX.length] = playerX;
-            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
-        }
-        
-        console.log("x array now: " + dotsX);
-        console.log("y array now: " + dotsY);
-        
-        console.log("added dot");
-    }*/
-    
-    
-    
-  document,onkeypress = function (keyboard){
-    
+    document.onkeypress = function(keyboard){
         key = keyboard.key;
-        if(key== 'w'){
-        direction = 'up';
+        
+        if(key == 'w'){
+           direction = 'up';
         }
-        if(key=='a'){
-         direction ='left';
-        }    
-        if(key=='s'){
-         direction ='down';    
+        
+        if(key == 'a'){
+            direction = 'left';
         }
-        if(key=='d'){
-          direction = 'right'; 
+        
+        if(key == 's'){
+            direction = 'down';
         }
-      if(key=='q'){
-        direction = ' ';   
-      }
-      
-      //debug
-      if(key=='m'){
-          totalDots++;
-      }
-  
-  }
+        
+        if(key == 'd'){
+            direction = 'right';
+        }
+        
+    }
+    
+    
+    
 </script>
 
+<style>
+  body{
+   font-family: "Calibri"; 
+  }
+</style>
+  
 </HEAD>
 <BODY>
 
-<canvas width="600" height="400" style="border: 1px solid #000000"></canvas>
-    
-    </BODY>
+<canvas width="600" height="600" style="border: 1px solid #000000"></canvas>
+  <p>SNAKE || use WASD to move</p>
+
+</BODY>
 </HTML>
