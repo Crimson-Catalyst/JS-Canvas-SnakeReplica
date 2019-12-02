@@ -1,0 +1,175 @@
+<HTML>
+<HEAD>
+
+<title>wow</title>
+
+
+<script>
+    'use strict;'
+    window.onload = init;
+    
+    //VARIABLES 
+    var canvas, ctx;
+    var playerX, playerY, playerSize;
+    var key;
+    var direction, speed;
+    var dotsX = [];
+    var dotsY = [];
+    var totalDots;
+    var timer;
+    
+    //FUNCTIONS
+    function init(){
+        canvas = document.querySelector('canvas');
+        ctx = canvas.getContext('2d');
+        
+        setup();
+        draw();
+        update();
+    }
+
+
+    function setup(){
+        playerX =300;   
+        playerY =200;
+        playerSize = 21;
+        speed = playerSize;
+        direction ='right';
+        
+        timer=0;
+        
+        totalDots = 3;
+        dotsX[0] = playerX;
+        dotsY[0] = playerY;
+        
+        for(var i=1; i<totalDots; i++){
+            dotsX[i] = playerX - (playerSize/2 - speed)*i;
+            dotsY[i] = playerY;
+        }
+    }
+    
+    function draw(){
+        //refresh
+        ctx.fillStyle = '#ffffff'; 
+        ctx.fillRect(0, 0, 600, 400);
+
+        //draw player
+        ctx.fillStyle ='#336699';
+        ctx.fillRect(playerX-playerSize/2,playerY-playerSize/2, playerSize, playerSize);
+        
+        //draw dots
+        ctx.fillStyle = '#bada55';
+        for(var i = 1; i < totalDots; i++){
+            ctx.fillRect(dotsX[i]-playerSize/2, dotsY[i]-playerSize/2, playerSize-1, playerSize-1);
+            //console.log("drew dot at: " + dotsX[i] + " " + dotsY[i]);
+        }
+        
+        
+    
+    }
+        
+    function update(){
+        
+        draw();
+        
+        if(timer == 7){
+            if(direction == 'up'){
+             playerY =playerY - speed;    
+            }
+            if(direction == 'down'){
+             playerY =playerY + speed;    
+            }
+            if(direction == 'right'){
+             playerX =playerX + speed;    
+            }
+            if(direction == 'left'){
+             playerX =playerX - speed;    
+            }
+
+            for(var i=totalDots; i>=0; i--){
+                if(i == 0){
+                    dotsX[i] = playerX;
+                    dotsY[i] = playerY;
+                }else{
+                    dotsX[i] = dotsX[i-1];
+                    dotsY[i] = dotsY[i-1];
+                }
+            }
+            timer = 0;
+        }
+        else{
+            timer++;
+        }
+        
+        window.requestAnimationFrame(update);
+    }    
+    
+    
+    /*function addDot(){
+        totalDots ++;
+        console.log("adding dot: " + totalDots);
+        
+        
+        if(direction == 'right'){
+            dotsX.push(playerX - playerSize*totalDots);
+            dotsY.push(playerY);
+            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
+        }
+        if(direction == 'left'){
+            dotsX.push(playerX + playerSize*2 + speed);
+            dotsY.push(playerY);
+            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
+        }
+        if(direction == 'up'){
+            dotsY.push(playerY - playerSize - speed);
+            dotsX.push(playerX);
+            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
+        }
+        if(direction == 'down'){
+            dotsY[dotsY.length] = playerY + playerSize*2 + speed;
+            dotsX[dotsX.length] = playerX;
+            console.log("added dot at " + dotsX[totalDots] + " " + dotsY[totalDots]);
+        }
+        
+        console.log("x array now: " + dotsX);
+        console.log("y array now: " + dotsY);
+        
+        console.log("added dot");
+    }*/
+    
+    
+    
+  document,onkeypress = function (keyboard){
+    
+        key = keyboard.key;
+        if(key== 'w'){
+        direction = 'up';
+        }
+        if(key=='a'){
+         direction ='left';
+        }    
+        if(key=='s'){
+         direction ='down';    
+        }
+        if(key=='d'){
+          direction = 'right'; 
+        }
+      if(key=='q'){
+        direction = ' ';   
+      }
+      
+      //debug
+      if(key=='m'){
+          totalDots++;
+      }
+  
+  }
+</script>
+
+</HEAD>
+<BODY>
+
+<canvas width="600" height="400" style="border: 1px solid #000000"></canvas>
+    
+    </BODY>
+</HTML>
